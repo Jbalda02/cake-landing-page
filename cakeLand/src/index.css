@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.app-root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Makes the root take the full height of the viewport */
+    background-color: #D2CDD3; /* Light background color */
+
+}
