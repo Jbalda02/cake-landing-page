@@ -20,6 +20,7 @@
     "cakeland": "file:",
     "firebase": "^10.14.1",
     "jwt-decode": "^4.0.0",
+    "libphonenumber-js": "^1.11.12",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.27.0"

@@ -5,7 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { doc, setDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "./../../../firebaseConfig";
-import { FirebaseError } from "firebase/app"; // Ensure this import is present
+import { FirebaseError } from "firebase/app"; // Ensure this import is presen
+import parsePhoneNumber, { PhoneNumber } from 'libphonenumber-js'
+import { isValidPhoneNumber } from "libphonenumber-js/mobile";
 
 function ReginsterPage() {
   const navigate = useNavigate();
@@ -16,8 +18,10 @@ function ReginsterPage() {
   const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [phone, setPhone] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState("");
   if (!userContext) return <div>No UserContext available</div>;
+
   const validateRegister = async () => {
     if (!firstName || !lastName || !password || !confirmPassword) {
       setErrorMessage("Todos los campos son obligatorios");
@@ -33,14 +37,24 @@ function ReginsterPage() {
       setErrorMessage("La contraseña debe tener al menos 8 caracteres");
       return;
     }
-
+    
     setErrorMessage("");
 
     try {
+      if(phone.startsWith('0')){
+         await setPhone(phone.replace(/^0/, '+593 '))
+       }
+       if(!isValidPhoneNumber(phone)){
+         setErrorMessage("Numero de telfono no valido");
+         return
+       }
+         const formattedPhone = parsePhoneNumber(phone);
+         console.log(formattedPhone?.formatInternational());
+         setPhone(formattedPhone?.formatInternational() || "")
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        password
+        password,
       );
       const user = userCredential.user;
       console.log("User created: ", user);
@@ -48,6 +62,7 @@ function ReginsterPage() {
       const additionalData = {
         firstName,
         lastName,
+        phone:formattedPhone?.formatInternational(),
         email: user.email,
         createdAt: new Date(),
       };
@@ -68,8 +83,11 @@ function ReginsterPage() {
         setErrorMessage("Ocurrió un error. Por favor, intenta nuevamente.");
       }
     }
-  };
-
+  };  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const inputValue = e.target.value;
+    setPhone(inputValue)
+};
   return (
     <div className="flex flex-col h-screen gap-3 justify-center content-center items-center">
       <label className="text-4xl">Register Page</label>
@@ -99,6 +117,15 @@ function ReginsterPage() {
         onChange={(e) => setEmail(e.target.value)}
         type="text"
         placeholder="Ingrese el Correo Electronico"
+        className="py-2 px-2 border rounded-md border-black min-w-64"
+      ></input>
+
+      <label className="mr-32">Numero Telefono </label>
+      <input
+        value={phone}
+        onChange={(e) => handleChange(e)}
+        type="text"
+        placeholder="+(XXX) XX-XXX-XXXX"
         className="py-2 px-2 border rounded-md border-black min-w-64"
       ></input>
 

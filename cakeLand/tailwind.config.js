@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily:{
+        "playwrite":['Playwrite GB S', 'sans-serif']
+      },
       colors:{
         'white-background': '#D2CDD3'
       }
