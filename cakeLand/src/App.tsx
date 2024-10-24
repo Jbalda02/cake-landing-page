@@ -1,44 +1,40 @@
 import NavBar from "./componentes/pageComponents/Navbar";
 import Footer from "./componentes/pageComponents/Footer";
-import cakeTest from "./assets/vanilla-cake.jpeg";
 import cakeHero from "./assets/cakeHero.jpg";
-import { useNavigate } from "react-router-dom";
-
+import List from "./componentes/pageComponents/List";
+import { useEffect, useState } from "react";
+import { Product } from "./types";
+import { getProductsByStarred } from "./services/userQueries";
 function Main() {
-  const navigate = useNavigate();
-  const productStyle =
-    "hover:scale-105 transition-transform duration-300 bg-indigo-100 rounded-md px-4 min-h-80 min-w-64 text-center flex flex-col";
+  const [starredProducts, setStarredProducts] = useState<Product[]>([])
+  useEffect(() => {
+    const fetchProducts = async () =>{
+      const products = await fetchStarred(true)
+      setStarredProducts(products);
+      console.log("Starred Products:", products); 
+  }
+  fetchProducts();
+},[])
 
-  const testCake = {
-    title: "Pastel de Vainilla",
-    description:
-      "Cremoso pastel de vainilla elaborado con los mejores productos a nivel nacional ",
-    price: "10.00 $",
-    imgurl: [cakeTest],
-  };
-  const testCake2 = {
-    title: "Pastel de Vainilla",
-    description:
-      "Cremoso pastel de vainilla elaborado con los mejores productos a nivel nacional ",
-    price: "12.00 $",
-    imgurl: [cakeTest],
-  };
-  const testCake3 = {
-    title: "Pastel de Vainilla",
-    description:
-      "Cremoso pastel de vainilla elaborado con los mejores productos a nivel nacional ",
-    price: "14.00 $",
-    imgurl: [cakeTest],
-  };
-  const testCake4 = {
-    title: "Pastel de Vainilla",
-    description:
-      "Cremoso pastel de vainilla elaborado con los mejores productos a nivel nacional ",
-    price: "16.00 $",
-    imgurl: [cakeTest],
-  };
-  const products = [testCake, testCake2, testCake3, testCake4];
+const fetchStarred = async (starred:boolean) =>{
+    const tmp = await getProductsByStarred(starred);
+    const productos: Product[] = tmp.map((item: any) => ({
+      id: item.id,
+      name: item.name,
+      descripcion: item.descripcion,
+      precio: item.precio,
+      imgurl: item.imgurl,
+      alergenos: item.alergenos,
+      disponible: item.disponible,
+      ingredientes: item.ingredientes,
+      numPorciones: item.numPorciones,
+      starred: item.starred,
+      type: item.type,
+    }));
+    return productos;
+  
 
+}
   return (
     <div className="flex flex-grow flex-col justify-between h-full w-full gap-0 bg-white-background">
       <NavBar />
@@ -69,32 +65,8 @@ function Main() {
             <h1 className="text-gray-200 font-bold text-center mt-6 mb-6 font-playwrite text-3xl">
               Nuestros productos estrellas
             </h1>
-
-            <ul className="flex flex-row gap-4 min-w-full max-w-full flex-wrap justify-center space-around align-middle">
-              {products.map((product, index) => (
-                <a
-                  className=""
-                  onClick={() => {
-                    navigate("/");
-                  }}
-                >
-                  <li key={index} className={productStyle}>
-                    <label className=" font-playwrite">{product.title}</label>
-                    <div className="min-h-0 max-h-0 min-w-full border border-purple-700"></div>
-                    <img
-                      className="max-w-48 mb-5 self-center object-fit rounded-lg mt-5 border border-purple-950"
-                      src={product.imgurl[0]}
-                    ></img>
-                    <label>Descripcion :</label>
-                    <p className="text-wrap max-w-64">{product.description}</p>
-                    <div className="text-white justify-center align-middle mb-5 pt-2 px-9 mt-5 bg-purple-600 min-h-10 rounded-md max-w-32 self-center">
-                      {product.price}
-                    </div>
-                  </li>
-                </a>
-              ))}
-            </ul>
-          </div>
+                <List products={starredProducts}></List>
+            </div>
         </div>
         <p>Promos</p>
         <p>Reserva compra o contacto</p>

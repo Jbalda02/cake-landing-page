@@ -2,6 +2,8 @@ import logo from "./../../assets/logo.webp"
 import { Link } from "react-router-dom"
 import { UserContext } from "../contexts/UserContext"
 import { useContext } from "react";
+import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 function NavBar() {
     const userContext = useContext(UserContext);
     const {user, setUser} = userContext || {};
@@ -18,6 +20,7 @@ function NavBar() {
                 
             {user ? (
                     <>
+                        <Link to={'/kart'}><FontAwesomeIcon icon={faCartShopping}></FontAwesomeIcon> </Link>
                         <li>{user.firstName + " " + user.lastName}</li>
                         <button className="text-red-500" onClick={handleLogout}>
                             Logout

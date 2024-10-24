@@ -10,6 +10,7 @@ import { UserProvider } from "./componentes/contexts/UserContext";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./componentes/pages/errorPage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import CartPage from "./componentes/pages/cartPage";
 
 const router = createBrowserRouter([
   {
@@ -37,6 +38,11 @@ const router = createBrowserRouter([
     element: <ContactPage></ContactPage>,
     errorElement: <ErrorPage></ErrorPage>,
   },
+  {
+    path:'/kart',
+    element: <CartPage></CartPage>,
+    errorElement:<ErrorPage></ErrorPage>
+  }
 ]);
 
 createRoot(document.getElementById("root")!).render(

@@ -68,6 +68,7 @@ function LoginPage() {
           lastName: userData.lastName ?? "",
           picture: userData.picture ?? "",
           id: user.uid ?? "",
+          phone: user.phoneNumber ?? "",
         });
       } else {
         console.log("No user data found in Firestore.");

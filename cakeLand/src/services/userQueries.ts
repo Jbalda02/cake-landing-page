@@ -1,22 +1,56 @@
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, getDoc, doc } from "firebase/firestore";
 import { db } from "./../../firebaseConfig"; // Import Firestore
 
-const getUserByEmail = async (email: string) => {
-    try {
-        // Reference to the 'users' collection
-        const usersRef = collection(db, "users");
+
+const getProductsByUID =async (productId: string) => {
+  try {
+    const docRef = doc(db, "products", productId);
     
-        // Query to find the user with the matching email
-        const q = query(usersRef, where("email", "==", email));
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() };
+    } else {
+      console.log("No such product!");
+      return null; 
+    }
+  } catch (error) {
+    console.error("Error fetching product by ID: ", error);
+    throw error;
+  }
+}
+
+const getProductsByType = async (type:string) => {
+    try{
+      const productsRef = collection(db, "producto" );
+      const q = query(productsRef, where("type","==", type))
+      const qSnap = await getDocs(q);
+      const products = qSnap.docs.map((doc) =>({
+        id:doc.id,
+        ...doc.data(),
+      }))
+      return products
+    }catch(e){
+      console.log(e);
+      throw e;
+    }
+}
+const getProductsByStarred = async (isStarred: boolean) => {
+  console.log(`Fetching products with starred: ${isStarred}`); // Check the value of isStarred
+  try {
+    const productsRef = collection(db, "producto");
+    const productsQuery = query(productsRef, where("starred", "==", isStarred));
+    const querySnapshot = await getDocs(productsQuery);
     
-        // Execute the query
-        const querySnapshot = await getDocs(q);
-    
-        // Return the entire query snapshot (containing one or more documents)
-        return querySnapshot;
-      } catch (error) {
-        console.error("Error fetching user by email:", error);
-        throw error;
+    // Check how many documents were found
+    console.log(`Documents found: ${querySnapshot.docs.length}`); 
+
+    const products = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    console.log("Fetched Products: ", products); // Log fetched products
+    return products;
+  } catch (error) {
+    console.error("Error fetching starred products: ", error);
+    return [];
   }
 };
-export {getUserByEmail} 
+export { getProductsByType, getProductsByUID, getProductsByStarred} 
