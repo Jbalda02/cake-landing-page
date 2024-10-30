@@ -1,4 +1,4 @@
-import logo from "./../../assets/logoTest.png";
+import logo from "./../../assets/logo.webp";
 import { UserContext } from "../contexts/UserContext";
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
