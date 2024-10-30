@@ -5,7 +5,9 @@ import List from "./componentes/pageComponents/List";
 import { useEffect, useState } from "react";
 import { Product } from "./types";
 import { getProductsByStarred } from "./services/userQueries";
+import { useNavigate } from "react-router-dom";
 function Main() {
+  const navigate = useNavigate();
   const [starredProducts, setStarredProducts] = useState<Product[]>([])
   useEffect(() => {
     const fetchProducts = async () =>{
@@ -68,8 +70,11 @@ const fetchStarred = async (starred:boolean) =>{
                 <List products={starredProducts}></List>
             </div>
         </div>
-        <p>Promos</p>
-        <p>Reserva compra o contacto</p>
+        <div className="bg-purple-900 min-h-32 justify-center align-middle flex">
+          <div className="cursor-pointer hover:bg-purple-800 max-h-20 rounded-xl bg-purple-600 max-w-52 px-5 py-5 text-white text-center">
+            <p onClick={() => navigate('/products')}>Explora Nuestro Menu Completo</p>
+            </div>
+          </div>
       </div>
       <Footer />
     </div>

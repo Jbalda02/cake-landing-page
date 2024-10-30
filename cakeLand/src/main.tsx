@@ -6,6 +6,7 @@ import LoginPage from "./componentes/pages/LoginPage";
 import Productos from "./componentes/pages/ProductPage";
 import ReginsterPage from "./componentes/pages/Register";
 import ContactPage from "./componentes/pages/ContactPage";
+import ProductDetailPage from "./componentes/pages/productDetailPage";
 import { UserProvider } from "./componentes/contexts/UserContext";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./componentes/pages/errorPage";
@@ -29,6 +30,11 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage></ErrorPage>,
   },
   {
+    path: "/products/:productId",
+    element: <ProductDetailPage></ProductDetailPage>,
+    errorElement: <ErrorPage></ErrorPage>,
+  },
+  {
     path: "/register",
     element: <ReginsterPage></ReginsterPage>,
     errorElement: <ErrorPage></ErrorPage>,
@@ -42,7 +48,7 @@ const router = createBrowserRouter([
     path:'/kart',
     element: <CartPage></CartPage>,
     errorElement:<ErrorPage></ErrorPage>
-  }
+  },
 ]);
 
 createRoot(document.getElementById("root")!).render(

@@ -4,7 +4,7 @@ import { db } from "./../../firebaseConfig"; // Import Firestore
 
 const getProductsByUID =async (productId: string) => {
   try {
-    const docRef = doc(db, "products", productId);
+    const docRef = doc(db, "producto", productId);
     
     const docSnap = await getDoc(docRef);
 

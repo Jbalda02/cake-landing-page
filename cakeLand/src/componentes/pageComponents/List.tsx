@@ -16,15 +16,15 @@ export default function List({ products }: ListProps) {
   }
   const navigate = useNavigate();
   const productStyle =
-    "hover:scale-105 transition-transform duration-300 bg-indigo-100 rounded-md px-4 min-h-80 min-w-64 text-center flex flex-col";
+    "mb-2 h-96 hover:scale-105 transition-transform duration-300 bg-indigo-100 rounded-md px-4 min-h-80 min-w-64 text-center flex flex-col";
   return (
-    <ul className="flex flex-row gap-4 min-w-full max-w-full flex-wrap justify-center space-around align-middle">
-      {products.map((product, index) => (
+    <ul className="hover:cursor-pointer flex flex-row gap-4 min-w-full max-w-full flex-wrap justify-center space-around align-middle">
+      {products.map((product) => (
         <a
         key={product.id}
           className=""
           onClick={() => {
-            navigate("/");
+            navigate(`/products/${[product.id]}`);
           }}
         >
           <li className={productStyle}>
@@ -36,7 +36,7 @@ export default function List({ products }: ListProps) {
             ></img>
             <label>Descripcion :</label>
             <p className="text-wrap max-w-64">{product.descripcion}</p>
-            <div className="text-white justify-center align-middle mb-5 pt-2 px-9 mt-5 bg-purple-600 min-h-10 rounded-md max-w-32 self-center">
+            <div className= "hover:bg-purple-800 text-white justify-center align-middle mb-5 pt-2 px-9 mt-5 bg-purple-600 min-h-10 rounded-md max-w-32 self-center">
               {formatToDollarString(product.precio)}
             </div>
           </li>

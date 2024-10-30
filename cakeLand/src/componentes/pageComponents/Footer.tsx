@@ -11,7 +11,7 @@ export default function Footer(){
     const igurl = "https://www.instagram.com/?hl=es"
     const gmail = "https://mail.google.com"
     return(
-        <div className="flex flex-col min-h-full bg-purple-900 mt-20 ">
+        <div className="flex flex-col min-h-full bg-purple-900 mt-0 ">
             <div className="mt-8 mb-8 flex flex-row min-w-full min-h-full justify-between">
                     <ul className="flex flex-col justify-around gap-4 text-white">
                         <label className="text-4xl font-playwrite text-left ml-5">Contacta y<br></br> haz tu pedido</label>
