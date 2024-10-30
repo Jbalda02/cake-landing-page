@@ -92,7 +92,7 @@ function ReginsterPage() {
     <div className="flex flex-col h-screen gap-3 justify-center content-center items-center">
       <label className="text-4xl">Register Page</label>
       <img src={logo} className="max-w-32"></img>
-      <label className="text-3xl">LandCake</label>
+      <label className="text-3xl">Nene Cake</label>
 
       {errorMessage && <p className="text-red-500">{errorMessage}</p>}
 

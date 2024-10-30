@@ -97,7 +97,7 @@ function LoginPage() {
     <div className=" bg-white-background flex flex-col h-screen gap-6 justify-center content-center items-center">
       <label className="text-4xl">Login Page</label>
       <img src={logo} className="max-w-32"></img>
-      <label className="text-3xl">LandCake</label>
+      <label className="text-3xl">Nene Cake</label>
       {errorMessage && <p className="text-red-500">{errorMessage}</p>}
       <label className="mr-48">Usuario</label>
       <input

@@ -16,7 +16,7 @@ export default function List({ products }: ListProps) {
   }
   const navigate = useNavigate();
   const productStyle =
-    "mb-2 h-96 hover:scale-105 transition-transform duration-300 bg-indigo-100 rounded-md px-4 min-h-80 min-w-64 text-center flex flex-col";
+    "mb-2 h-[410px] hover:scale-105 transition-transform duration-300 bg-indigo-100 rounded-md px-4 min-h-80 min-w-64 text-center flex flex-col";
   return (
     <ul className="hover:cursor-pointer flex flex-row gap-4 min-w-full max-w-full flex-wrap justify-center space-around align-middle">
       {products.map((product) => (

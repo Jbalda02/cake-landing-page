@@ -25,12 +25,17 @@ function NavBar() {
                         <button className="text-red-500" onClick={handleLogout}>
                             Logout
                         </button>
+                        <Link to={'/products'}>  Menu   </Link>
+                        <Link to={'/contact'}> Contacto </Link>
                     </>
                 ) : (
-                    <Link to="/login">Login</Link>
+                    <>
+                    <Link to="/login" className="mr-6">Login</Link>
+                    <Link to={'/login'}><FontAwesomeIcon icon={faCartShopping}></FontAwesomeIcon> </Link>
+                    <Link to={'/products'}>  Menu   </Link>
+                    <Link to={'/contact'}> Contacto </Link>
+                    </>
                 )}
-                <Link to={'/products'}>  Menu   </Link>
-                <Link to={'/contact'}> Pedidos </Link>
             </ul>
         </div>
     )
