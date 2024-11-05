@@ -3,10 +3,10 @@ import { UserContext } from "../contexts/UserContext";
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { doc, setDoc } from "firebase/firestore";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "./../../../firebaseConfig";
 import { FirebaseError } from "firebase/app"; // Ensure this import is presen
-import parsePhoneNumber, { PhoneNumber } from 'libphonenumber-js'
+import parsePhoneNumber from 'libphonenumber-js'
 import { isValidPhoneNumber } from "libphonenumber-js/mobile";
 
 function ReginsterPage() {
@@ -58,13 +58,16 @@ function ReginsterPage() {
       );
       const user = userCredential.user;
       console.log("User created: ", user);
-
+      await updateProfile(user, {
+        displayName: `${firstName} ${lastName}`,
+      });
       const additionalData = {
         firstName,
         lastName,
         phone:formattedPhone?.formatInternational(),
         email: user.email,
         createdAt: new Date(),
+        cart: [],
       };
       await setDoc(doc(db, "users", user.uid), additionalData);
       console.log("User created and data saved in Firestore:", user);

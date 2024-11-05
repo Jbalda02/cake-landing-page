@@ -72,7 +72,7 @@ const fetchStarred = async (starred:boolean) =>{
         </div>
         <div className="bg-purple-900 min-h-32 justify-center align-middle flex">
           <div className="cursor-pointer hover:bg-purple-800 max-h-20 rounded-xl bg-purple-600 max-w-52 px-5 py-5 text-white text-center">
-            <p onClick={() => navigate('/products')}>Explora Nuestro Menu Completo</p>
+            <p onClick={() => navigate('/products')}> Menu Completo</p>
             </div>
           </div>
       </div>

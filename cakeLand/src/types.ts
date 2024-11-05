@@ -1,13 +1,18 @@
 // types.ts
 export interface User {
-    id?: string; // ID del usuario en Firestore
+    id: string; // ID del usuario en Firestore
     firstName: string; // Primer nombre
     lastName: string; // Apellido
     email: string; // Correo electrónico
     picture?: string; // URL de la imagen de perfil (opcional)
     phone?:string
+    cart: CartItem[]
 }
 
+export interface CartItem{
+    product: Product ,
+    quantity: number,
+}
 export interface Product{
         id:string,
         name: string,

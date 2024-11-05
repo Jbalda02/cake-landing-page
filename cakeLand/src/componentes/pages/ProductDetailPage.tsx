@@ -1,16 +1,28 @@
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
 import { Product } from "../../types";
 import { getProductsByUID } from "../../services/userQueries";
+import { updateUserCart } from "../../services/userQueries";
 import NavBar from "../pageComponents/Navbar";
 import { Fade } from "react-slideshow-image";
 import "react-slideshow-image/dist/styles.css";
 import { faCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Footer from "../pageComponents/Footer";
+import { UserContext } from "../contexts/UserContext";
+import { CartItem } from "../../types";
 const ProductDetailPage = () => {
   const { productId } = useParams<{ productId: string }>(); // Extract the ID from the URL
-  const [product, setProduct] = useState<Product | null>(null); // Product type
+  const userContext = useContext(UserContext);
+  const navigate = useNavigate();
+    // Ensure userContext is not null
+    if (!userContext) {
+      return <div>Loading...</div>; // Or handle not logged in state appropriately
+    }
+  const {  user } = userContext;
+  const [cart, setCart] = useState<CartItem[]>();
+  const [product, setProduct] = useState<Product>(); // Product type
+  const [quantity, setQuantity] = useState<number>(0);
   const h1Style:string = "font-playwrite text-center text-xl"; 
   const formatToDollarString = (amount:number) => {
     const formattedDollarString = new Intl.NumberFormat('en-US', {
@@ -35,7 +47,44 @@ const ProductDetailPage = () => {
 
     fetchProduct();
   }, [productId]);
-  0;
+
+  const addToCart = () => {
+    if (!user) {
+      console.error("User is not logged in.");
+      navigate("/login");
+      return;
+    }
+  
+    if (!product) {
+      console.error("Product is not available.");
+      return; // Exit if the product is undefined
+    }
+  
+    // Check if the product is already in the cart
+    const existingCartItemIndex = user.cart.findIndex((item: { product: { id: string; }; }) => item.product.id === product.id);
+  
+    if (existingCartItemIndex > -1) {
+      // If it exists, update the quantity
+      const updatedCart = [...user.cart];
+      updatedCart[existingCartItemIndex].quantity += quantity; // Add to existing quantity
+      setCart(updatedCart); // Update state
+    } else {
+      // If it does not exist, add it to the cart
+      const newCartItem: CartItem = { product, quantity }; // Store the full product
+      const updatedCart = [...user.cart, newCartItem];
+      setCart(updatedCart); // Update state
+    }
+  
+    // Now update Firestore
+    updateUserCart(user.id, user.cart); // Save the updated cart to Firestore
+    console.log("Addded to Cart! Sucessfull")
+  }
+  
+
+  const addToCartAndCheckout = () => {
+    addToCart();
+    navigate("/");
+  }
   if (!product) return <div>Loading...</div>; // Ensure the product exists before accessing its properties
 
   return (
@@ -65,8 +114,14 @@ const ProductDetailPage = () => {
             </Fade> : <img src={product.imgurl[0]} className=""></img>
             }
             <div className="flex flex-row justify-around content-around min-w-full">
-              <div className="cursor-pointer bg-purple-600 text-white py-5 px-4 rounded-lg my-4 hover:bg-purple-800" >Comprar </div>
-              <div className="cursor-pointer bg-purple-600 text-white py-5 px-4 rounded-lg my-4 hover:bg-purple-800"> Anadir a Carrito</div>
+            <input 
+  type="number" 
+  value={quantity} 
+  onChange={(e) => setQuantity(Number(e.target.value))} 
+  min="1" 
+/>
+              <div className="cursor-pointer bg-purple-600 text-white py-5 px-4 rounded-lg my-4 hover:bg-purple-800" onClick={addToCartAndCheckout}>Comprar </div>
+              <div className="cursor-pointer bg-purple-600 text-white py-5 px-4 rounded-lg my-4 hover:bg-purple-800" onClick={addToCart}> Anadir a Carrito</div>
             </div>
           </div>
         </div>

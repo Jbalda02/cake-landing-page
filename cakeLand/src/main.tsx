@@ -6,12 +6,12 @@ import LoginPage from "./componentes/pages/LoginPage";
 import Productos from "./componentes/pages/ProductPage";
 import ReginsterPage from "./componentes/pages/Register";
 import ContactPage from "./componentes/pages/ContactPage";
-import ProductDetailPage from "./componentes/pages/productDetailPage";
+import ProductDetailPage from "./componentes/pages/ProductDetailPage.tsx";
 import { UserProvider } from "./componentes/contexts/UserContext";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./componentes/pages/errorPage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import CartPage from "./componentes/pages/cartPage";
+import CartPage from "./componentes/pages/cartPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -45,7 +45,7 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage></ErrorPage>,
   },
   {
-    path:'/kart',
+    path:'/kart/:userid',
     element: <CartPage></CartPage>,
     errorElement:<ErrorPage></ErrorPage>
   },
