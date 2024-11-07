@@ -13,7 +13,7 @@ function Main() {
     const fetchProducts = async () =>{
       const products = await fetchStarred(true)
       setStarredProducts(products);
-      console.log("Starred Products:", products); 
+      //console.log("Starred Products:", products); 
   }
   fetchProducts();
 },[])

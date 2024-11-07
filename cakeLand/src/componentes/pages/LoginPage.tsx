@@ -28,7 +28,7 @@ function LoginPage() {
     const firstName: string = nameParts.slice(0, 2).join(" ");
     const lastName: string = nameParts.slice(2).join(" ");
 
-    console.log(decodedUser);
+    //console.log(decodedUser);
     const userData = {
       firstName: firstName,
       lastName: lastName,
@@ -36,7 +36,7 @@ function LoginPage() {
       picture: decodedUser.picture,
     };
     setUser(userData);
-    console.log(userData);
+    //console.log(userData);
     navigate("/");
   };
   const signInGoogleFailed = () => {
@@ -71,7 +71,7 @@ function LoginPage() {
           phone: user.phoneNumber ?? "",
         });
       } else {
-        console.log("No user data found in Firestore.");
+      //   console.log("No user data found in Firestore.");
       }
       // Handle logged-in user, e.g., set context, redirect
       navigate("/");

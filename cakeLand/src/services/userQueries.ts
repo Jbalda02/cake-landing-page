@@ -5,7 +5,6 @@ import {
   getDocs,
   getDoc,
   doc,
-  updateDoc,
   setDoc
 } from "firebase/firestore";
 import { db } from "./../../firebaseConfig";
@@ -105,20 +104,15 @@ const getProductsByType = async (type: string) => {
   }
 };
 const getProductsByStarred = async (isStarred: boolean) => {
-  console.log(`Fetching products with starred: ${isStarred}`); // Check the value of isStarred
   try {
     const productsRef = collection(db, "producto");
     const productsQuery = query(productsRef, where("starred", "==", isStarred));
     const querySnapshot = await getDocs(productsQuery);
 
-    // Check how many documents were found
-    console.log(`Documents found: ${querySnapshot.docs.length}`);
-
     const products = querySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
-    console.log("Fetched Products: ", products); // Log fetched products
     return products;
   } catch (error) {
     console.error("Error fetching starred products: ", error);

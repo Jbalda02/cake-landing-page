@@ -140,12 +140,13 @@ const ProductDetailPage = () => {
             ) : (
               <img src={product.imgurl[0]} className=""></img>
             )}
-            <div className="flex flex-row justify-around content-around min-w-full">
+            <div className="flex  gap-5 flex-row justify-around content-around min-w-full">
               <input
                 type="number"
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
                 min="1"
+                className="max-h-20 align-middle rounded-2xl mt-5 max-w-10 text-right mb-5"
               />
               <div
                 className="cursor-pointer bg-purple-600 text-white py-5 px-4 rounded-lg my-4 hover:bg-purple-800"
