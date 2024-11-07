@@ -9,7 +9,7 @@ function NavBar() {
     const {user, setUser} = userContext || {};
     const handleLogout = () => {
         if(setUser){
-        setUser(null);
+        setUser(undefined);
     }
     };
     return(
@@ -20,7 +20,7 @@ function NavBar() {
                 
             {user ? (
                     <>
-                        <Link to={`/kart/${[user.id]}`}><FontAwesomeIcon icon={faCartShopping}></FontAwesomeIcon> </Link>
+                        <Link to={`/kart/${[user.id]}`} onClick={window.location.reload}><FontAwesomeIcon icon={faCartShopping}></FontAwesomeIcon> </Link>
                         <li>{user.firstName + " " + user.lastName}</li>
                         <button className="text-red-500" onClick={handleLogout}>
                             Logout

@@ -11,7 +11,7 @@ import { UserProvider } from "./componentes/contexts/UserContext";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./componentes/pages/errorPage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import CartPage from "./componentes/pages/cartPage.tsx";
+import CartPage from "./componentes/pages/CartPage.tsx";
 
 const router = createBrowserRouter([
   {

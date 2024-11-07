@@ -8,31 +8,59 @@ import {
   updateDoc,
   setDoc
 } from "firebase/firestore";
-import { db } from "./../../firebaseConfig"; // Import Firestore
+import { db } from "./../../firebaseConfig";
 import { CartItem } from "../types";
-const updateUserCart = async (userId: string, cart: CartItem[]) => {
+
+const eraseItemFromCartById = async (userId:string, productIdToRemove:string) => {
+  const userRef = doc(db, "users", userId);
+  const userDocSnap = await getDoc(userRef);
+  const existingCart = userDocSnap.exists() ? userDocSnap.data().cart || [] : [];
+  const updatedCart = existingCart.filter((item:CartItem) => item.product.id !== productIdToRemove);
+  await setDoc(userRef, { cart: updatedCart }, { merge: true });
+
+} 
+
+const updateUserCart = async (userId: string, newCartItems: CartItem[]) => {
   try {
     const userRef = doc(db, "users", userId);
-    await setDoc(userRef, { cart }, { merge: true }); // Merge to avoid overwriting other user fields
+
+    // Fetch the current cart from Firestore
+    const userDocSnap = await getDoc(userRef);
+    const existingCart = userDocSnap.exists() ? userDocSnap.data().cart || [] : [];
+
+    // Create a map to easily merge new items
+    const cartMap = new Map<string, CartItem>();
+
+    // Add existing items to the map
+    existingCart.forEach((item: CartItem) => {
+      cartMap.set(item.product.id, item);
+    });
+
+    newCartItems.forEach((newItem) => {
+      cartMap.set(newItem.product.id, newItem);
+    })
+
+    // Convert the map back to an array and update Firestore
+    const updatedCart = Array.from(cartMap.values());
+    await setDoc(userRef, { cart: updatedCart }, { merge: true });
+
     console.log("User cart updated successfully");
   } catch (error) {
     console.error("Error updating user cart: ", error);
   }
 };
 
-// Get user cart by user ID
+
 const getUserCart = async (userId: string) => {
   try {
-    // Reference to the user's document
-    const userDocRef = doc(db, "users", userId); // Assuming you have a collection named 'users'
 
-    // Fetch the user document
+    const userDocRef = doc(db, "users", userId); 
+
     const userDocSnap = await getDoc(userDocRef);
 
     if (userDocSnap.exists()) {
-      // Return the cart field from the user document
       const userData = userDocSnap.data();
-      return userData.cart || []; // Return cart if it exists, otherwise return an empty array
+      return userData.cart || []; 
     } else {
       console.log("No user found with this ID!");
       return null;
@@ -103,4 +131,5 @@ export {
   getProductsByStarred,
   getUserCart,
   updateUserCart,
+  eraseItemFromCartById
 };
