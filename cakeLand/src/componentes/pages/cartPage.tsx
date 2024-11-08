@@ -1,14 +1,17 @@
 import { UserContext } from "../contexts/UserContext";
 import { useContext, useEffect, useState } from "react";
 import NavBar from "../pageComponents/Navbar";
-import { eraseItemFromCartById, getUserCart, updateUserCart } from "../../services/userQueries";
+import { eraseItemFromCartById, getUserCart } from "../../services/userQueries";
 import { CartItem } from "../../types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
-export default function cartPage() {
+import { faTrash, faFaceFrown, faCake, faC } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
+
+export default function CartPage() {
   const userContext = useContext(UserContext);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
   
   const formatToDollarString = (amount: number) => {
     const formattedDollarString =
@@ -41,9 +44,16 @@ export default function cartPage() {
   useEffect(() => {
     if (userContext?.user?.id) {
       loadCart();
-      console.log(cart)
     }
   }, [userContext?.user?.id]);
+
+  const calcularTotal = (cart: CartItem[]) => {
+    let total = 0;
+    cart.forEach(element => {
+      total = element.product.precio * element.quantity + total
+    });
+      return formatToDollarString(total)
+  }
    // Remove item function
    const removeThis = async (productId: string) => {
     if (!userContext?.user?.id) {
@@ -76,7 +86,8 @@ export default function cartPage() {
     );
   }
   return (
-    <div className="flex flex-col">
+   cart.length > 0? (
+   <div className="flex flex-col">
       <NavBar></NavBar>
       <label className="text-center font-mono text-3xl">
         Bienvenido{" "}
@@ -86,7 +97,7 @@ export default function cartPage() {
         Carrito
       </label>
       <div className="flex flex-row my-4">
-        <ul className="flex flex-row justify-around min-w-full bg-white rounded-xl py-2">
+        <ul className="flex flex-row justify-around min-w-full mb-5 bg-white rounded-xl py-2">
           <li key="index-t"    className="text-center"  >#</li>
           <li key="name-t"     className="text-center min-w-64 ">Nombre</li>
           <li key="quantity-t" className="text-center"  >Cantidad</li>
@@ -98,7 +109,7 @@ export default function cartPage() {
         return (
           <ul
             key={`cart-item-${item.product.id}`} // Unique key for each cart item
-            className="flex flex-row justify-around min-w-full"
+            className="flex flex-row justify-around min-w-full my-2"
           >
             <li key={`index-${item.product.id}`} className="text-center">
               {index + 1}
@@ -122,6 +133,22 @@ export default function cartPage() {
           </ul>
         );
       })}
-    </div>
+      <div className="self-center my-5">
+        <label className="self-center mr-5">Subtotal</label>
+        <label>{calcularTotal(userContext?.user?.cart ?? [])}</label>
+      </div>
+      <div className="cursor-pointer self-center bg-purple-600 hover:bg-purple-800 rounded-xl py-5 px-5 text-white">Proceder a Checkout!</div>
+    </div>):(
+      <div className="flex flex-col">
+      <NavBar></NavBar>
+      <label className="text-center font-mono text-3xl">
+        Bienvenido{" "}
+        {`${userContext?.user?.firstName} ${userContext?.user?.lastName}`}
+
+      </label>
+      <label className="text-center mt-14">No tienes Items <FontAwesomeIcon icon={faFaceFrown}></FontAwesomeIcon></label>
+      <label className=" bg-purple-600 text-white py-5 px-5 rounded-lg hover:bg-purple-800 text-center cursor-pointer max-w-80 self-center mt-10" onClick={() => navigate('/menu')}>Mira nuestro menu! <FontAwesomeIcon icon={faCake}></FontAwesomeIcon></label>
+
+      </div>)
   );
 }  
