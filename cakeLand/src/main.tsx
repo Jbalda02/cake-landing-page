@@ -12,6 +12,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./componentes/pages/errorPage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import CartPage from "./componentes/pages/CartPage.tsx";
+import CheckoutPage from './componentes/pages/CheckoutPage.tsx'
 
 const router = createBrowserRouter([
   {
@@ -47,6 +48,11 @@ const router = createBrowserRouter([
   {
     path:'/kart/:userid',
     element: <CartPage></CartPage>,
+    errorElement:<ErrorPage></ErrorPage>
+  },
+  {
+    path:'/checkout/:userid',
+    element:<CheckoutPage></CheckoutPage>,
     errorElement:<ErrorPage></ErrorPage>
   },
 ]);

@@ -4,7 +4,7 @@ import NavBar from "../pageComponents/Navbar";
 import { eraseItemFromCartById, getUserCart } from "../../services/userQueries";
 import { CartItem } from "../../types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faFaceFrown, faCake, faC } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faFaceFrown, faCake } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 
 export default function CartPage() {
@@ -60,22 +60,33 @@ export default function CartPage() {
       console.error("User ID is undefined.");
       return;
     }
-
-    // Filter out the item to remove it from the local cart state
-    ///console.log(productId)
     const updatedCart = cart.filter((item) => item.product.id !== productId);
     setCart(updatedCart);
 
-    ///console.log(updatedCart)
-    // Update the Firestore database by sending the updated cart
     try {
       await eraseItemFromCartById(userContext.user.id, productId);
     } catch (error) {
     console.log(error)}
     loadCart();
-    window.location.reload()
+
+    let updatedUser = userContext?.user;
+    if(updatedUser !== undefined){ 
+      updatedUser.cart = cart;
+      userContext?.setUser(updatedUser)
+      navigate(`/checkout/${userContext?.user?.id}`)
+    }
+    
   };
 
+   const toCheckout = (cart:CartItem[]) => {
+      let updatedUser = userContext?.user;
+      if(updatedUser !== undefined){ 
+        updatedUser.cart = cart;
+        userContext?.setUser(updatedUser)
+        navigate(`/checkout/${userContext?.user?.id}`)
+      }
+      
+   } 
 
   if (loading) {
     return (
@@ -105,7 +116,7 @@ export default function CartPage() {
           <li key="delete-t"   className="text-center"  ></li> {/* Empty space for trash icon */}
         </ul>
       </div>
-      {userContext?.user?.cart.map((item, index) => {
+      {cart.map((item, index) => {
         return (
           <ul
             key={`cart-item-${item.product.id}`} // Unique key for each cart item
@@ -137,7 +148,7 @@ export default function CartPage() {
         <label className="self-center mr-5">Subtotal</label>
         <label>{calcularTotal(userContext?.user?.cart ?? [])}</label>
       </div>
-      <div className="cursor-pointer self-center bg-purple-600 hover:bg-purple-800 rounded-xl py-5 px-5 text-white">Proceder a Checkout!</div>
+      <div className="cursor-pointer self-center bg-purple-600 hover:bg-purple-800 rounded-xl py-5 px-5 text-white" onClick={() => toCheckout(cart)} >Proceder a Checkout!</div>
     </div>):(
       <div className="flex flex-col">
       <NavBar></NavBar>
@@ -147,7 +158,7 @@ export default function CartPage() {
 
       </label>
       <label className="text-center mt-14">No tienes Items <FontAwesomeIcon icon={faFaceFrown}></FontAwesomeIcon></label>
-      <label className=" bg-purple-600 text-white py-5 px-5 rounded-lg hover:bg-purple-800 text-center cursor-pointer max-w-80 self-center mt-10" onClick={() => navigate('/menu')}>Mira nuestro menu! <FontAwesomeIcon icon={faCake}></FontAwesomeIcon></label>
+      <label className=" bg-purple-600 text-white py-5 px-5 rounded-lg hover:bg-purple-800 text-center cursor-pointer max-w-80 self-center mt-10" onClick={() => navigate('/products')}>Mira nuestro menu! <FontAwesomeIcon icon={faCake}></FontAwesomeIcon></label>
 
       </div>)
   );
