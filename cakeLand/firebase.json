@@ -5,8 +5,8 @@
   },
   "functions": [
     {
-      "source": "functions",
-      "codebase": "default",
+      "source": "function_cake",
+      "codebase": "function_cake",
       "ignore": [
         "node_modules",
         ".git",

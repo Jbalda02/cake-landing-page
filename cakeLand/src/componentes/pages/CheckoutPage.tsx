@@ -4,17 +4,14 @@ import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
 import toast, { Toaster } from "react-hot-toast";
 import { UserContext } from "../contexts/UserContext";
-export default function CheckoutPage() {
+
+export default function CheckoutPage() { 
   const userContext = useContext(UserContext);
   const [selectedPaymentMethod, setPaymentMethod] = useState("");
   const paymentOptions = [
-    { value: "bankTransfer", label: "Transferencia bancaria" },
-    { value: "paypal", label: "Paypal" },
-    { value: "card", label: "Tarjeta" },
-  ];
-  const defaultOption = paymentOptions[0];
-
-
+    {value: 'bankTransfer' , label:"Transferencia Bancarias"},
+    {value: 'paypal', label:'Paypal'}
+  ] 
   const paymentMethodToRender = () => {
     toast.success('Metodo de pago Selecionado ' + selectedPaymentMethod)
     switch (selectedPaymentMethod) {
@@ -23,8 +20,14 @@ export default function CheckoutPage() {
         <div> 
             <h1>Instrucciones</h1>
             <ol>
-                <li>Realizar transferencia a  </li>
+                <li>Realizar transferencia a 
+                <br/>Banco Bolivariano
+                <br/>Cta. Ahorros
+                <br/>Número: 0931235206
+                <br/>Jose Fernando Balda Canizares
+                <br/>Identificación: 092800439 </li>
                 <li>Subir Comprobante</li>
+                
             </ol>
 
 
