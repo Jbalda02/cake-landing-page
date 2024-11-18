@@ -6,7 +6,11 @@
     "outDir": "lib",
     "sourceMap": true,
     "strict": false,
-    "target": "es2017"
+    "target": "es2017",
+    "baseUrl": "./",
+    "paths": {
+      "componentes/*": ["src/componentes/*"]
+    }
   },
   "compileOnSave": true,
   "include": [
