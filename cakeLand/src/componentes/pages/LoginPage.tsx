@@ -30,11 +30,14 @@ function LoginPage() {
 
     //console.log(decodedUser);
     const userData = {
+      id: "", // Default or retrieve it from a reliable source if available
       firstName: firstName,
       lastName: lastName,
       email: decodedUser.email,
       picture: decodedUser.picture,
+      cart: [], // Initialize with an empty array
     };
+  
     setUser(userData);
     //console.log(userData);
     navigate("/");

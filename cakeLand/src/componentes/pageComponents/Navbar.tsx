@@ -1,5 +1,5 @@
 import logo from "./../../assets/logo.webp"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { UserContext } from "../contexts/UserContext"
 import { useContext } from "react";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
