@@ -5,125 +5,108 @@ import {
   getDocs,
   getDoc,
   doc,
-  setDoc
+  setDoc,
+  DocumentData,
 } from "firebase/firestore";
 import { db } from "./../../firebaseConfig";
-import { CartItem } from "../types";
+import { CartItem, Product } from "../types";
 
-const eraseItemFromCartById = async (userId:string, productIdToRemove:string) => {
+/**
+ * Normalises a raw Firestore document into a Product.
+ * Array fields are defaulted because several documents in the collection are
+ * missing `ingredientes` / `alergenos`, and the detail page used to crash
+ * calling .map() on undefined.
+ */
+const toProduct = (id: string, data: DocumentData): Product => ({
+  id,
+  name: data.name ?? "",
+  descripcion: data.descripcion ?? "",
+  precio: Number(data.precio) || 0,
+  imgurl: Array.isArray(data.imgurl) ? data.imgurl : [],
+  alergenos: Array.isArray(data.alergenos) ? data.alergenos : [],
+  disponible: data.disponible !== false,
+  ingredientes: Array.isArray(data.ingredientes) ? data.ingredientes : [],
+  numPorciones: Number(data.numPorciones) || 0,
+  starred: Boolean(data.starred),
+  type: data.type ?? "otro",
+});
+
+const eraseItemFromCartById = async (userId: string, productIdToRemove: string) => {
   const userRef = doc(db, "users", userId);
   const userDocSnap = await getDoc(userRef);
-  const existingCart = userDocSnap.exists() ? userDocSnap.data().cart || [] : [];
-  const updatedCart = existingCart.filter((item:CartItem) => item.product.id !== productIdToRemove);
+  const existingCart: CartItem[] = userDocSnap.exists() ? userDocSnap.data().cart || [] : [];
+  const updatedCart = existingCart.filter((item) => item.product.id !== productIdToRemove);
   await setDoc(userRef, { cart: updatedCart }, { merge: true });
+  return updatedCart;
+};
 
-} 
-
+/**
+ * Replaces the stored cart with `newCartItems`.
+ * The previous implementation merged the incoming items into whatever was
+ * already in Firestore, which meant removing an item locally and saving could
+ * never actually delete it.
+ */
 const updateUserCart = async (userId: string, newCartItems: CartItem[]) => {
   try {
     const userRef = doc(db, "users", userId);
-
-    // Fetch the current cart from Firestore
-    const userDocSnap = await getDoc(userRef);
-    const existingCart = userDocSnap.exists() ? userDocSnap.data().cart || [] : [];
-
-    // Create a map to easily merge new items
-    const cartMap = new Map<string, CartItem>();
-
-    // Add existing items to the map
-    existingCart.forEach((item: CartItem) => {
-      cartMap.set(item.product.id, item);
-    });
-
-    newCartItems.forEach((newItem) => {
-      cartMap.set(newItem.product.id, newItem);
-    })
-
-    // Convert the map back to an array and update Firestore
-    const updatedCart = Array.from(cartMap.values());
-    await setDoc(userRef, { cart: updatedCart }, { merge: true });
-
-    console.log("User cart updated successfully");
+    await setDoc(userRef, { cart: newCartItems }, { merge: true });
   } catch (error) {
     console.error("Error updating user cart: ", error);
-  }
-};
-
-
-const getUserCart = async (userId: string) => {
-  try {
-
-    const userDocRef = doc(db, "users", userId); 
-
-    const userDocSnap = await getDoc(userDocRef);
-
-    if (userDocSnap.exists()) {
-      const userData = userDocSnap.data();
-      return userData.cart || []; 
-    } else {
-      console.log("No user found with this ID!");
-      return null;
-    }
-  } catch (error) {
-    console.error("Error fetching user cart: ", error);
     throw error;
   }
 };
 
-const getProductsByUID = async (productId: string) => {
+/** Always resolves to an array — callers iterate the result directly. */
+const getUserCart = async (userId: string): Promise<CartItem[]> => {
   try {
-    const docRef = doc(db, "producto", productId);
+    const userDocSnap = await getDoc(doc(db, "users", userId));
+    if (!userDocSnap.exists()) return [];
+    const cart = userDocSnap.data().cart;
+    return Array.isArray(cart) ? cart : [];
+  } catch (error) {
+    console.error("Error fetching user cart: ", error);
+    return [];
+  }
+};
 
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() };
-    } else {
-      console.log("No such product!");
-      return null;
-    }
+const getProductsByUID = async (productId: string): Promise<Product | null> => {
+  try {
+    const docSnap = await getDoc(doc(db, "producto", productId));
+    if (!docSnap.exists()) return null;
+    return toProduct(docSnap.id, docSnap.data());
   } catch (error) {
     console.error("Error fetching product by ID: ", error);
     throw error;
   }
 };
 
-const getProductsByType = async (type: string) => {
+const getProductsByType = async (type: string): Promise<Product[]> => {
   try {
-    const productsRef = collection(db, "producto");
-    const q = query(productsRef, where("type", "==", type));
-    const qSnap = await getDocs(q);
-    const products = qSnap.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    return products;
-  } catch (e) {
-    console.log(e);
-    throw e;
+    const q = query(collection(db, "producto"), where("type", "==", type));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => toProduct(d.id, d.data()));
+  } catch (error) {
+    console.error("Error fetching products by type: ", error);
+    return [];
   }
 };
-const getProductsByStarred = async (isStarred: boolean) => {
-  try {
-    const productsRef = collection(db, "producto");
-    const productsQuery = query(productsRef, where("starred", "==", isStarred));
-    const querySnapshot = await getDocs(productsQuery);
 
-    const products = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    return products;
+const getProductsByStarred = async (isStarred: boolean): Promise<Product[]> => {
+  try {
+    const q = query(collection(db, "producto"), where("starred", "==", isStarred));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => toProduct(d.id, d.data()));
   } catch (error) {
     console.error("Error fetching starred products: ", error);
     return [];
   }
 };
+
 export {
   getProductsByType,
   getProductsByUID,
   getProductsByStarred,
   getUserCart,
   updateUserCart,
-  eraseItemFromCartById
+  eraseItemFromCartById,
 };

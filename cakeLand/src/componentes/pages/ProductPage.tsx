@@ -1,78 +1,130 @@
-import NavBar from "../pageComponents/Navbar";
-import Footer from "../pageComponents/Footer";
-import List from "../pageComponents/List";
 import { useEffect, useState } from "react";
+
+import List from "../pageComponents/List";
+import { PageShell, Section } from "../ui/Layout";
+import { EmptyState } from "../ui/Feedback";
+import { ButtonLink } from "../ui/Button";
 import { getProductsByType } from "../../services/userQueries";
 import { Product } from "../../types";
-function Productos() {
-  const [tortas, setTortas] = useState<Product[]>([]);
-  const [pies, setPies] = useState<Product[]>([]);
-  const [frios, setFrios] = useState<Product[]>([]);
-  const [otros, setOtros] = useState<Product[]>([]);
 
-    useEffect(() => {
-      const fetchProducts = async () =>{
-         setTortas( await fetchProductsbyType('torta'))
-         setPies( await fetchProductsbyType('pie'))
-         setFrios( await fetchProductsbyType('frio'))
-         setOtros( await fetchProductsbyType('otro'))
-    }
-    fetchProducts();
-    console.log(tortas)
+const CATEGORIES = [
+  { key: "torta", label: "Tortas", blurb: "Bizcochos de capas, rellenos y cubiertas a pedido." },
+  { key: "pie", label: "Pies", blurb: "Masas quebradas horneadas el mismo día." },
+  { key: "frio", label: "Postres fríos", blurb: "Cheesecakes, mousses y tiramisús." },
+  { key: "otro", label: "Otros", blurb: "Galletas, cupcakes y antojos de temporada." },
+] as const;
+
+type CategoryKey = (typeof CATEGORIES)[number]["key"];
+
+function Productos() {
+  const [productsByType, setProductsByType] = useState<Record<string, Product[]>>({});
+  const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState<CategoryKey | "todos">("todos");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchAll = async () => {
+      // Fetch every category in parallel instead of four sequential awaits
+      const results = await Promise.all(
+        CATEGORIES.map(async (c) => [c.key, await getProductsByType(c.key)] as const)
+      );
+      if (cancelled) return;
+      setProductsByType(Object.fromEntries(results));
+      setLoading(false);
+    };
+
+    fetchAll();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-    const fetchProductsbyType = async (type:string) =>{
-      const tmp = await getProductsByType(type);
-      const productos: Product[] = tmp.map((item: any) => ({
-        id: item.id,
-        name: item.name,
-        descripcion: item.descripcion,
-        precio: item.precio,
-        imgurl: item.imgurl,
-        alergenos: item.alergenos,
-        disponible: item.disponible,
-        ingredientes: item.ingredientes,
-        numPorciones: item.numPorciones,
-        starred: item.starred,
-        type: item.type,
-      }));
-      return productos;
-    }
-    
+  const visibleCategories =
+    activeFilter === "todos" ? CATEGORIES : CATEGORIES.filter((c) => c.key === activeFilter);
+
+  const totalProducts = Object.values(productsByType).reduce((n, list) => n + list.length, 0);
+
   return (
-    <div className="flex flex-col min-h-screen">
-      <NavBar></NavBar>
-
-      <div className="flex-grow">
-        <h1 className="text-center mt-6 mb-6 font-playwrite text-3xl">Tortas</h1>
-        <ul className="flex flex-row gap-4 min-w-full max-w-full flex-wrap justify-center space-around align-middle">
-          <List products={tortas}></List>
-        </ul>
+    <PageShell>
+      {/* Page header */}
+      <div className="border-b border-cream-200 bg-plum-sheen">
+        <div className="container py-14 text-center md:py-20">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-gold-300">
+            Carta completa
+          </p>
+          <h1 className="font-display text-4xl font-semibold text-cream-50 md:text-5xl">
+            Nuestro menú
+          </h1>
+          <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-plum-200">
+            Todo se hornea por encargo con 24 horas de anticipación. Los precios incluyen la
+            decoración base.
+          </p>
+        </div>
       </div>
 
-      <div className="flex-grow">
-        <h1 className="text-center mt-6 mb-6 font-playwrite text-3xl">Pies</h1>
-        <ul className="flex flex-row gap-4 min-w-full max-w-full flex-wrap justify-center space-around align-middle">
-          <List products={pies}></List>
-        </ul>
+      {/* Category filter */}
+      <div className="sticky top-[68px] z-30 border-b border-cream-200 bg-cream-50/95 backdrop-blur-md md:top-[76px]">
+        <div className="container flex gap-2 overflow-x-auto py-4">
+          {[{ key: "todos" as const, label: "Todos" }, ...CATEGORIES].map((c) => {
+            const isActive = activeFilter === c.key;
+            return (
+              <button
+                key={c.key}
+                onClick={() => setActiveFilter(c.key)}
+                aria-pressed={isActive}
+                className={`shrink-0 rounded-full px-5 py-2 text-sm font-medium transition-all ${
+                  isActive
+                    ? "bg-plum-700 text-cream-50 shadow-soft"
+                    : "border border-cream-300 bg-white text-ink-soft hover:border-plum-300 hover:text-plum-700"
+                }`}
+              >
+                {c.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      <div className="flex-grow">
-        <h1 className="text-center mt-6 mb-6 font-playwrite text-3xl">Frios</h1>
-        <ul className="flex flex-row gap-4 min-w-full max-w-full flex-wrap justify-center space-around align-middle">
-          <List products={frios}></List>
-        </ul>
-      </div>
+      {!loading && totalProducts === 0 ? (
+        <Section className="bg-cream-100">
+          <EmptyState
+            title="El menú está vacío por ahora"
+            description="Estamos actualizando la carta. Escríbenos y te contamos qué tenemos disponible esta semana."
+            action={<ButtonLink to="/contact">Contáctanos</ButtonLink>}
+          />
+        </Section>
+      ) : (
+        visibleCategories.map((category, index) => {
+          const items = productsByType[category.key] ?? [];
+          if (!loading && items.length === 0) return null;
 
-      <div className="flex-grow">
-        <h1 className="text-center mt-6 mb-6 font-playwrite text-3xl">Otros</h1>
-        <ul className="flex flex-row gap-4 min-w-full max-w-full flex-wrap justify-center space-around align-middle">
-          <List products={otros}></List>
-        </ul>
-      </div>
+          return (
+            <Section
+              key={category.key}
+              id={category.key}
+              className={index % 2 === 0 ? "bg-cream-100" : "bg-cream-50"}
+            >
+              <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <h2 className="font-display text-3xl font-semibold text-ink md:text-4xl">
+                    {category.label}
+                  </h2>
+                  <p className="mt-2 text-sm text-ink-soft">{category.blurb}</p>
+                </div>
+                {!loading && (
+                  <span className="rounded-full bg-plum-50 px-4 py-1.5 text-xs font-medium text-plum-700">
+                    {items.length} {items.length === 1 ? "producto" : "productos"}
+                  </span>
+                )}
+              </div>
 
-      <Footer></Footer>
-    </div>
+              <List products={items} loading={loading} skeletonCount={4} />
+            </Section>
+          );
+        })
+      )}
+    </PageShell>
   );
 }
 
